@@ -45,6 +45,12 @@ public class PostController {
 		this.userManager = userManager;
 		this.userDetailsService = userDetailsService;
 		this.postRepository = postRepository;
+
+	}
+
+	@GetMapping("/search")
+	public List<Post> searchPosts(@RequestParam("keyword") String keyword) {
+		return postService.searchByContent(keyword);
 	}
 
 	@GetMapping
@@ -72,9 +78,22 @@ public class PostController {
 		return postService.updateOnePostById(postId, updatePost);
 	}
 
+	/*
+	 * @DeleteMapping("/{postId}") public void deleteOnePostById(@PathVariable Long
+	 * postId) { postService.deleteOnePostById(postId); }
+	 */
+
 	@DeleteMapping("/{postId}")
 	public void deleteOnePostById(@PathVariable Long postId) {
-		postService.deleteOnePostById(postId);
+		try {
+			// Postu sil
+			postService.deleteOnePostById(postId);
+			// Fotoğrafı sil
+			postService.deletePostPhoto(postId);
+		} catch (IOException e) {
+			e.printStackTrace();
+			// Hata oluşursa uygun bir şekilde işleyin
+		}
 	}
 
 	@PutMapping("/photos/{postId}")
@@ -92,6 +111,7 @@ public class PostController {
 	@GetMapping("/photos/{postId}")
 	public ResponseEntity<Resource> getPostPhoto(@PathVariable Long postId) {
 		try {
+
 			Resource photo = postService.getPostPhoto(postId);
 			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + photo.getFilename() + "\"")

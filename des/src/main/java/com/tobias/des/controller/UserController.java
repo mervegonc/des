@@ -41,6 +41,11 @@ public class UserController {
 		this.userDetailsService = userDetailsService;
 	}
 
+	@GetMapping("/search")
+	public List<User> searchUsers(@RequestParam("username") String username) {
+		return userManager.searchByUsername(username);
+	}
+
 	@GetMapping
 	public List<User> getAllUsers() {
 		return userManager.getAllUsers();

@@ -16,6 +16,8 @@ import com.tobias.des.entity.User;
 import com.tobias.des.repository.CommentRepository;
 import com.tobias.des.repository.PostRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class CommentService {
 
@@ -84,9 +86,26 @@ public class CommentService {
 			return null;
 	}
 
-	public void deleteOneCommentById(Long commentId) {
-		commentRepository.deleteById(commentId);
-
+	/*
+	 * @Transactional public void deleteComment(Long userId, Long postId, Long
+	 * commentId) { commentRepository.deleteByUserIdAndPostIdAndId(userId, postId,
+	 * commentId); }
+	 */
+	@Transactional
+	public void deleteComment(Long userId, Long postId, Long commentId) throws Exception {
+		Optional<Comment> commentOptional = commentRepository.findById(commentId);
+		if (commentOptional.isPresent()) {
+			Comment comment = commentOptional.get();
+			if (comment.getUser().getId().equals(userId) || comment.getPost().getUser().getId().equals(userId)) {
+				commentRepository.delete(comment);
+			} else {
+				// Kullanıcı bu yorumu silme yetkisine sahip değil
+				throw new Exception("Bu yorumu silme yetkiniz yok.");
+			}
+		} else {
+			// Verilen commentId'ye sahip yorum bulunamadı
+			throw new Exception("Verilen ID'ye sahip yorum bulunamadı.");
+		}
 	}
 
 	public List<Comment> getCommentsPostId(Long postId) {

@@ -50,19 +50,20 @@ public class CommentController {
 		return commentService.updateOneCommentById(commentId, request);
 	}
 
-	@DeleteMapping("/{commentId}")
-	public void deleteOneComment(@PathVariable Long commentId) {
-		commentService.deleteOneCommentById(commentId);
+	@DeleteMapping("/{userId}/{postId}/{commentId}")
+	public void deleteComment(@PathVariable Long userId, @PathVariable Long postId, @PathVariable Long commentId)
+			throws Exception {
+		commentService.deleteComment(userId, postId, commentId);
 	}
-
 	/*
 	 * @GetMapping("/posts/{postId}/comments") public List<Comment>
 	 * getAllCommentsByPostId(@PathVariable Long postId) { return
 	 * commentService.getCommentsPostId(postId); }
 	 */
 
-	@GetMapping("/post/{postId}/comment") // bir posta ait atıaln commentler
+	@GetMapping("/post/{postId}/comment")
 	public List<CommentResponse> usersCommentsByPostId(@PathVariable Long postId) {
 		return commentService.getCommentsResponseByPostId(postId);
 	}
+
 }

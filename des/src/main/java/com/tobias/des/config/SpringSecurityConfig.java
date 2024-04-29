@@ -40,22 +40,28 @@ public class SpringSecurityConfig {
 
 		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests((authorize) -> {
 
-			authorize.requestMatchers("/api/auth/signin").permitAll().requestMatchers("/api/auth/signup").permitAll();
+			authorize.requestMatchers("/api/auth/signin").permitAll().requestMatchers("/api/auth/forgotpassword")
+					.permitAll().requestMatchers("/api/auth/signup").permitAll();
 			authorize.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
 			authorize.requestMatchers(HttpMethod.GET, "/api/user/**");
-			authorize.requestMatchers(HttpMethod.GET, "/api/user/profile/**");
-			authorize.requestMatchers(HttpMethod.PUT, "/api/user/info/**");
-			authorize.requestMatchers(HttpMethod.PUT, "/api/user/background/**");
-			authorize.requestMatchers(HttpMethod.GET, "/api/user/backgrounds/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/post/**");
-			authorize.requestMatchers(HttpMethod.PUT, "/api/post/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/comment/posts/**");
 			authorize.requestMatchers(HttpMethod.GET, "api/posts/**");
-			authorize.requestMatchers(HttpMethod.POST, "/api/post/");
-			authorize.requestMatchers(HttpMethod.GET, "/api/comment/post/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/like/**");
+			authorize.requestMatchers(HttpMethod.PUT, "/api/post/**");
+			authorize.requestMatchers(HttpMethod.PUT, "/api/user/**");
+			authorize.requestMatchers(HttpMethod.PUT, "/api/comment/**");
 			authorize.requestMatchers(HttpMethod.POST, "/api/like/**");
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/like/**");
+			authorize.requestMatchers(HttpMethod.DELETE, "/api/post/**");
+			authorize.requestMatchers(HttpMethod.DELETE, "/api/comment/**");
+			/*
+			 * authorize.requestMatchers(HttpMethod.PUT, "/api/elasticsearch/posts/**");
+			 * authorize.requestMatchers(HttpMethod.GET,
+			 * "/api/elasticsearch/posts/search/**");
+			 * authorize.requestMatchers(HttpMethod.DELETE, "/api/elasticsearch/posts/**");
+			 * authorize.requestMatchers(HttpMethod.POST, "/api/elasticsearch/posts/**");
+			 */
 
 			authorize.anyRequest().authenticated();
 		}).httpBasic(Customizer.withDefaults());

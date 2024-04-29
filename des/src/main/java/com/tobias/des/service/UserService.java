@@ -38,4 +38,10 @@ public interface UserService {
 
 	String uploadUserBackgroundPhoto(Long userId, MultipartFile file) throws Exception;
 
+	List<User> searchByUsername(String username);
+
+	void resetPassword(User user, String newPassword);
+
+	User findByUsernameOrEmail(String usernameOrEmail);
+
 }

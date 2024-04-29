@@ -14,4 +14,5 @@ public class SignupDto {
 	private String username;
 	private String email;
 	private String password;
+	private String passwordReminder;
 }

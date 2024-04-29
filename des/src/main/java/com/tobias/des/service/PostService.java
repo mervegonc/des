@@ -39,6 +39,14 @@ public class PostService {
 
 	}
 
+	public List<Post> getAllPostsByUserId(Long userId) {
+		return postRepository.findByUserId(userId);
+	}
+
+	public List<Post> searchByContent(String keyword) {
+		return postRepository.findByContentContaining(keyword);
+	}
+
 	@Autowired
 	public void setLikeService(LikeService likeService) {
 		this.likeService = likeService;
@@ -102,6 +110,15 @@ public class PostService {
 		postRepository.deleteById(postId);
 	}
 
+	public void deletePostPhoto(Long postId) throws IOException {
+		Path filePath = Paths.get(Constants.POST_PHOTOS_DIR + postId + ".jpeg");
+		if (Files.exists(filePath)) {
+			Files.delete(filePath);
+		} else {
+			throw new IOException("Post photo not found for post id: " + postId);
+		}
+	}
+
 	public Post getOnePostByUserId(Long userId) {
 		// Kullanıcıya ait bir postu getirmek için findByUserId metodu kullanılmalıdır.
 		List<Post> userPosts = postRepository.findByUserId(userId);
@@ -114,10 +131,6 @@ public class PostService {
 		} else {
 			return null; // veya uygun bir hata mesajı döndürebilirsiniz.
 		}
-	}
-
-	public List<Post> getAllPostsByUserId(Long userId) {
-		return postRepository.findByUserId(userId);
 	}
 
 	/*
@@ -198,6 +211,7 @@ public class PostService {
 	public Resource getPostPhoto(Long postId) throws IOException {
 		Path filePath = Paths.get(UPLOAD_DIR + postId + ".jpeg");
 		Resource resource = new PathResource(filePath);
+
 		if (Files.exists(filePath) && Files.isReadable(filePath)) {
 			return resource;
 		} else {

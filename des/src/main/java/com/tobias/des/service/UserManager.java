@@ -50,6 +50,11 @@ public class UserManager implements UserService {
 	}
 
 	@Override
+	public List<User> searchByUsername(String username) {
+		return userRepository.searchFindByUsername(username);
+	}
+
+	@Override
 	public String login(LoginDto loginDto) {
 
 		Authentication authentication = authenticationManager.authenticate(
@@ -88,6 +93,7 @@ public class UserManager implements UserService {
 		user.setName(signupDto.getName());
 		user.setUsername(signupDto.getUsername());
 		user.setEmail(signupDto.getEmail());
+		user.setPasswordReminder(signupDto.getPasswordReminder());
 		user.setPassword(passwordEncoder.encode(signupDto.getPassword()));
 
 		Role userRole = roleRepository.findByName(roleName);
@@ -226,6 +232,23 @@ public class UserManager implements UserService {
 		} catch (IOException e) {
 			throw new Exception("Failed to store file " + file.getOriginalFilename(), e);
 		}
+	}
+
+	@Override
+	public User findByUsernameOrEmail(String usernameOrEmail) {
+		return userRepository.findByUsername(usernameOrEmail);
+	}
+
+	@Override
+	public void resetPassword(User user, String newPassword) {
+		// Yeni şifreyi şifreleyerek kullanıcı nesnesine ayarlayın
+		user.setPassword(passwordEncoder.encode(newPassword));
+
+		// Şifre hatırlatma alanını boşaltın (isteğe bağlı)
+		/* user.setPasswordReminder(pass); */
+
+		// Kullanıcıyı güncelleyin
+		userRepository.save(user);
 	}
 
 }

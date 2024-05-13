@@ -22,20 +22,25 @@ import com.tobias.des.dto.requests.PostUpdateRequest;
 import com.tobias.des.dto.responses.LikeResponse;
 import com.tobias.des.dto.responses.PostResponse;
 import com.tobias.des.entity.Post;
+import com.tobias.des.entity.PostPhotos;
 import com.tobias.des.entity.User;
+import com.tobias.des.repository.PostPhotosRepository;
 import com.tobias.des.repository.PostRepository;
 
 @Service
 public class PostService {
 
 	private PostRepository postRepository;
+	private PostPhotosRepository postPhotosRepository;
 	private UserManager authManager;
 	private LikeService likeService;
 
-	public PostService(PostRepository postRepository, UserManager authManager) {
+	public PostService(PostRepository postRepository, UserManager authManager,
+			PostPhotosRepository postPhotosRepository) {
 		super();
 		this.postRepository = postRepository;
 		this.authManager = authManager;
+		this.postPhotosRepository = postPhotosRepository;
 
 	}
 
@@ -52,17 +57,26 @@ public class PostService {
 		this.likeService = likeService;
 	}
 
-	public List<PostResponse> getAllPosts(Optional<Long> userId) {
+	public List<PostResponse> getAllPosts() {
 		List<Post> list;
-		if (userId.isPresent()) {
-			list = postRepository.findByUserId(userId.get());
-		}
+
 		list = postRepository.findAll();
 		return list.stream().map(p -> {
 			List<LikeResponse> likes = likeService.getAllLikesWithParam(Optional.ofNullable(null),
 					Optional.of(p.getId()));
 			return new PostResponse(p, likes);
 		}).collect(Collectors.toList());
+	}
+
+	public List<PostResponse> getPostsByUserId(Long userId) {
+		List<Post> userPosts = postRepository.findByUserId(userId);
+		List<PostResponse> postResponses = new ArrayList<>();
+		for (Post post : userPosts) {
+			List<LikeResponse> postLikes = likeService.getAllLikesWithParam(Optional.ofNullable(null),
+					Optional.of(post.getId()));
+			postResponses.add(new PostResponse(post, postLikes));
+		}
+		return postResponses;
 	}
 
 	public Post getOnePostById(Long postId) {
@@ -174,10 +188,42 @@ public class PostService {
 	 * 
 	 * return photoNames; }
 	 */
+	/*
+	 * public List<String> uploadPostPhotos(Long postId, List<MultipartFile> files)
+	 * throws Exception { List<String> photoNames = new ArrayList<>();
+	 * 
+	 * // Postun fotoğraflarını saklamak için bir klasör oluştur String
+	 * postPhotoDirPath = Constants.POST_PHOTOS_DIR + postId + "/";
+	 * Files.createDirectories(Paths.get(postPhotoDirPath));
+	 * 
+	 * // Fotoğrafları kaydet for (int i = 0; i < files.size(); i++) { MultipartFile
+	 * file = files.get(i); if (file.isEmpty()) { throw new
+	 * Exception("Dosya boş olamaz"); }
+	 * 
+	 * try { // Dosya adını oluştur String extension =
+	 * StringUtils.getFilenameExtension(file.getOriginalFilename()); String fileName
+	 * = postId + "_" + (i + 1) + "." + extension; String filePath =
+	 * postPhotoDirPath + fileName;
+	 * 
+	 * // Dosyayı kaydet byte[] bytes = file.getBytes(); Path path =
+	 * Paths.get(filePath); Files.write(path, bytes);
+	 * 
+	 * photoNames.add(fileName); } catch (Exception e) { throw new
+	 * Exception("Dosya yüklenirken bir hata oluştu", e); } }
+	 * 
+	 * return photoNames; }
+	 */
+
 	public List<String> uploadPostPhotos(Long postId, List<MultipartFile> files) throws Exception {
 		List<String> photoNames = new ArrayList<>();
 
-		for (MultipartFile file : files) {
+		// Postun fotoğraflarını saklamak için bir klasör oluştur
+		String postPhotoDirPath = Constants.POST_PHOTOS_DIR + postId + "/";
+		Files.createDirectories(Paths.get(postPhotoDirPath));
+
+		// Fotoğrafları kaydet
+		for (int i = 0; i < files.size(); i++) {
+			MultipartFile file = files.get(i);
 			if (file.isEmpty()) {
 				throw new Exception("Dosya boş olamaz");
 			}
@@ -185,8 +231,8 @@ public class PostService {
 			try {
 				// Dosya adını oluştur
 				String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
-				String fileName = generateFileName(postId, extension);
-				String filePath = Constants.POST_PHOTOS_DIR + fileName;
+				String fileName = postId + "_" + (i + 1) + "." + extension;
+				String filePath = postPhotoDirPath + fileName;
 
 				// Dosyayı kaydet
 				byte[] bytes = file.getBytes();
@@ -194,6 +240,13 @@ public class PostService {
 				Files.write(path, bytes);
 
 				photoNames.add(fileName);
+
+				// PostPhotos entity'sine kayıt ekle
+				PostPhotos postPhoto = new PostPhotos();
+				postPhoto.setPhotoName(fileName);
+				postPhoto.setPost(postRepository.getById(postId)); // postRepository'e ihtiyaç duyulacak
+				// PostPhotos entity'sini kaydet
+				postPhotosRepository.save(postPhoto);
 			} catch (Exception e) {
 				throw new Exception("Dosya yüklenirken bir hata oluştu", e);
 			}
@@ -206,16 +259,25 @@ public class PostService {
 		return postId + "." + extension;
 	}
 
-	private static final String UPLOAD_DIR = "C:/campspring/des/src/main/java/com/tobias/des/uploads/posts/";
+	private static final String UPLOAD_DIR = "C:/campspring/des/src/main/resources/uploads/posts/";
 
-	public Resource getPostPhoto(Long postId) throws IOException {
-		Path filePath = Paths.get(UPLOAD_DIR + postId + ".jpeg");
+	public Resource getPostPhoto(Long postId, String photoId) throws IOException {
+		String photoPath = Constants.POST_PHOTOS_DIR + postId + "/" + photoId;
+		Path filePath = Paths.get(photoPath);
 		Resource resource = new PathResource(filePath);
-
 		if (Files.exists(filePath) && Files.isReadable(filePath)) {
 			return resource;
 		} else {
-			throw new IOException("Post photo not found for post id: " + postId);
+			throw new IOException("Post photo not found for post id: " + postId + " and photo id: " + photoId);
 		}
+	}
+
+	public List<String> getAllPostPhotos(Long postId) {
+		List<String> photoNames = new ArrayList<>();
+		List<PostPhotos> postPhotos = postPhotosRepository.findByPostId(postId);
+		for (PostPhotos postPhoto : postPhotos) {
+			photoNames.add(postPhoto.getPhotoName());
+		}
+		return photoNames;
 	}
 }

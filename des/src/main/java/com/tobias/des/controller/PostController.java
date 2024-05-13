@@ -2,7 +2,6 @@ package com.tobias.des.controller;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -54,8 +53,18 @@ public class PostController {
 	}
 
 	@GetMapping
-	public List<PostResponse> getAllPosts(@RequestParam Optional<Long> userId) {
-		return postService.getAllPosts(userId);
+	public List<PostResponse> getAllPosts() {
+		return postService.getAllPosts();
+	}
+
+	@GetMapping("/myposts/{userId}")
+	public List<Post> getAllPostsByUserId(@PathVariable Long userId) {
+		return postService.getAllPostsByUserId(userId);
+	}
+
+	@GetMapping("/my/{userId}")
+	public List<PostResponse> getPostsByUserId(@PathVariable Long userId) {
+		return postService.getPostsByUserId(userId);
 	}
 
 	@PostMapping
@@ -66,11 +75,6 @@ public class PostController {
 	@GetMapping("/{postId}")
 	public Post getOnePostById(@PathVariable Long postId) {
 		return postService.getOnePostById(postId);
-	}
-
-	@GetMapping("/me/{userId}")
-	public List<Post> getAllPostsByUserId(@PathVariable Long userId) {
-		return postService.getAllPostsByUserId(userId);
 	}
 
 	@PutMapping("/{postId}")
@@ -108,16 +112,41 @@ public class PostController {
 		}
 	}
 
-	@GetMapping("/photos/{postId}")
-	public ResponseEntity<Resource> getPostPhoto(@PathVariable Long postId) {
-		try {
+	/*
+	 * @GetMapping("/getphotos/{postId}") public ResponseEntity<List<String>>
+	 * getPostPhotos(@PathVariable Long postId) { try { List<String> photoDataList =
+	 * postService.getPostPhotoData(postId); return
+	 * ResponseEntity.ok().body(photoDataList); } catch (IOException e) {
+	 * e.printStackTrace(); return
+	 * ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); } }
+	 */
 
-			Resource photo = postService.getPostPhoto(postId);
+	/*
+	 * @GetMapping("/getphotos/{postId}") public ResponseEntity<List<String>>
+	 * getPostPhotos(@PathVariable Long postId) { try { List<String> photoUrls =
+	 * postService.getPostPhotoUrls(postId); return
+	 * ResponseEntity.ok().body(photoUrls); } catch (IOException e) {
+	 * e.printStackTrace(); return
+	 * ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); } }
+	 */
+	@GetMapping("/photos/{postId}/{photoId}")
+	public ResponseEntity<Resource> getPostPhoto(@PathVariable Long postId, @PathVariable String photoId) {
+		try {
+			Resource photo = postService.getPostPhoto(postId, photoId);
 			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + photo.getFilename() + "\"")
 					.body(photo);
 		} catch (IOException e) {
-			return ResponseEntity.notFound().build();
+			// Hata durumunda varsayılan bir fotoğraf döndür
+
+			return null;
 		}
 	}
+
+	@GetMapping("/photos/{postId}")
+	public ResponseEntity<List<String>> getAllPostPhotos(@PathVariable Long postId) {
+		List<String> photoNames = postService.getAllPostPhotos(postId);
+		return ResponseEntity.ok().body(photoNames);
+	}
+
 }

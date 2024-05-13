@@ -129,7 +129,7 @@ public class UserController {
 					.body(photo);
 		} catch (IOException e) {
 			Resource defaultPhoto = new PathResource(
-					Paths.get("C:/campspring/des/src/main/java/com/tobias/des/uploads/background/background.png"));
+					Paths.get("C:/campspring/des/src/main/resources/uploads/background/background.png"));
 			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"blank.png\"").body(defaultPhoto);
 		}
@@ -144,7 +144,7 @@ public class UserController {
 					.body(photo);
 		} catch (IOException e) {
 			Resource defaultPhoto = new PathResource(
-					Paths.get("C:/campspring/des/src/main/java/com/tobias/des/uploads/profile/blank.png"));
+					Paths.get("C:/campspring/des/src/main/resources/uploads/profile/blank.png"));
 			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"blank.png\"").body(defaultPhoto);
 		}

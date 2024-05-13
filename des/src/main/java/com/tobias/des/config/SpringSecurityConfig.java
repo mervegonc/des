@@ -43,6 +43,7 @@ public class SpringSecurityConfig {
 			authorize.requestMatchers("/api/auth/signin").permitAll().requestMatchers("/api/auth/forgotpassword")
 					.permitAll().requestMatchers("/api/auth/signup").permitAll();
 			authorize.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+
 			authorize.requestMatchers(HttpMethod.GET, "/api/user/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/post/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/comment/posts/**");

@@ -251,4 +251,10 @@ public class UserManager implements UserService {
 		userRepository.save(user);
 	}
 
+	@Override
+	public User findById(Long userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -49,13 +49,17 @@ public class SpringSecurityConfig {
 			authorize.requestMatchers(HttpMethod.GET, "/api/comment/posts/**");
 			authorize.requestMatchers(HttpMethod.GET, "api/posts/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/like/**");
+			authorize.requestMatchers(HttpMethod.GET, "/api/articles/**");
+			authorize.requestMatchers(HttpMethod.POST, "/api/articles/create");
 			authorize.requestMatchers(HttpMethod.PUT, "/api/post/**");
 			authorize.requestMatchers(HttpMethod.PUT, "/api/user/**");
 			authorize.requestMatchers(HttpMethod.PUT, "/api/comment/**");
+			authorize.requestMatchers(HttpMethod.PUT, "/api/articles/**");
 			authorize.requestMatchers(HttpMethod.POST, "/api/like/**");
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/like/**");
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/post/**");
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/comment/**");
+			authorize.requestMatchers(HttpMethod.DELETE, "/api/article/**");
 			/*
 			 * authorize.requestMatchers(HttpMethod.PUT, "/api/elasticsearch/posts/**");
 			 * authorize.requestMatchers(HttpMethod.GET,

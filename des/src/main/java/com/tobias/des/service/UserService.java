@@ -44,4 +44,6 @@ public interface UserService {
 
 	User findByUsernameOrEmail(String usernameOrEmail);
 
+	User findById(Long userId);
+
 }

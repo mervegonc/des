@@ -22,15 +22,15 @@ import jakarta.transaction.Transactional;
 public class CommentService {
 
 	private CommentRepository commentRepository;
-	private UserManager authManager;
+	private UserManager userManager;
 	private PostService postService;
 	private PostRepository postRepository;
 
-	public CommentService(CommentRepository commentRepository, UserManager authManager, @Lazy PostService postService,
+	public CommentService(CommentRepository commentRepository, UserManager userManager, @Lazy PostService postService,
 			PostRepository postRepository) {
 		super();
 		this.commentRepository = commentRepository;
-		this.authManager = authManager;
+		this.userManager = userManager;
 		this.postService = postService;
 		this.postRepository = postRepository;
 	}
@@ -62,7 +62,7 @@ public class CommentService {
 	}
 
 	public Comment createOneComment(CommentCreateRequest request) {
-		User user = authManager.getOneUserById(request.getUserId());
+		User user = userManager.getOneUserById(request.getUserId());
 		Post post = postService.getOnePostById(request.getPostId());
 		if (user != null && post != null) {
 			Comment commentToSave = new Comment();

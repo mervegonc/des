@@ -2,6 +2,7 @@ package com.tobias.des.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -22,4 +23,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 	List<Comment> findByPostId(Long postId);
 
 	void deleteByUserIdAndPostIdAndId(Long userId, Long postId, Long commentId);
+
+	@Override
+	List<Comment> findAll(Sort sort);
 }

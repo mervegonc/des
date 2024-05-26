@@ -1,5 +1,9 @@
 package com.tobias.des.entity;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -15,6 +19,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.Data;
 
 @Entity
@@ -38,8 +44,23 @@ public class Comment {
 	@JsonIgnore
 	User user;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+	@CreationTimestamp
+	private Date createdAt;
+
 	@Lob
 	@Column(columnDefinition = "text")
 	String text;
+	private String formattedCreatedAt;
+
+	public String getFormattedCreatedAt() {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+		return dateFormat.format(this.createdAt);
+	}
+
+	public void setCreatedAtFormatted(String formattedCreatedAt) {
+		this.formattedCreatedAt = formattedCreatedAt;
+	}
 
 }

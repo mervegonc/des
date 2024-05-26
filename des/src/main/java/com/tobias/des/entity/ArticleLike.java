@@ -1,6 +1,10 @@
 package com.tobias.des.entity;
 
-import jakarta.persistence.Column;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -9,29 +13,27 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Table(name = "article_photos")
+@Table(name = "\"article_likes\"")
 @Data
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class ArticlePhotos {
+public class ArticleLike {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "article_id", nullable = false)
-	private Article article;
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JsonIgnore
+	Article article;
 
-	@Column(name = "photo_name", nullable = false)
-	private String photoName;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false) // user_id alanını doğru şekilde ayarlayın
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JsonIgnore
+	User user;
 
 }

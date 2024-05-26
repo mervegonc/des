@@ -43,23 +43,30 @@ public class SpringSecurityConfig {
 			authorize.requestMatchers("/api/auth/signin").permitAll().requestMatchers("/api/auth/forgotpassword")
 					.permitAll().requestMatchers("/api/auth/signup").permitAll();
 			authorize.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
-
 			authorize.requestMatchers(HttpMethod.GET, "/api/user/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/post/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/comment/posts/**");
 			authorize.requestMatchers(HttpMethod.GET, "api/posts/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/like/**");
-			authorize.requestMatchers(HttpMethod.GET, "/api/articles/**");
-			authorize.requestMatchers(HttpMethod.POST, "/api/articles/create");
+			authorize.requestMatchers(HttpMethod.GET, "/api/article/**");
+			authorize.requestMatchers(HttpMethod.GET, "/api/articlelike/**");
+			authorize.requestMatchers(HttpMethod.GET, "/api/articlecomment/**");
+			authorize.requestMatchers(HttpMethod.POST, "/api/article/create");
+			authorize.requestMatchers(HttpMethod.POST, "/api/like/**");
+			authorize.requestMatchers(HttpMethod.POST, "/api/articlelike/**");
+			authorize.requestMatchers(HttpMethod.POST, "/api/articlecomment/**");
 			authorize.requestMatchers(HttpMethod.PUT, "/api/post/**");
 			authorize.requestMatchers(HttpMethod.PUT, "/api/user/**");
 			authorize.requestMatchers(HttpMethod.PUT, "/api/comment/**");
-			authorize.requestMatchers(HttpMethod.PUT, "/api/articles/**");
-			authorize.requestMatchers(HttpMethod.POST, "/api/like/**");
+			authorize.requestMatchers(HttpMethod.PUT, "/api/article/**");
+			authorize.requestMatchers(HttpMethod.PUT, "/api/articlelike/**");
+			authorize.requestMatchers(HttpMethod.PUT, "/api/articlecomment/**");
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/like/**");
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/post/**");
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/comment/**");
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/article/**");
+			authorize.requestMatchers(HttpMethod.DELETE, "/api/articlelike/**");
+			authorize.requestMatchers(HttpMethod.DELETE, "/api/articlecomment/**");
 			/*
 			 * authorize.requestMatchers(HttpMethod.PUT, "/api/elasticsearch/posts/**");
 			 * authorize.requestMatchers(HttpMethod.GET,

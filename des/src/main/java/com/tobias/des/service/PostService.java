@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,10 +58,24 @@ public class PostService {
 		this.likeService = likeService;
 	}
 
+	/*
+	 * public List<PostResponse> getAllPosts() { List<Post> list =
+	 * postRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")); return
+	 * list.stream().map(p -> { List<LikeResponse> likes =
+	 * likeService.getAllLikesWithParam(Optional.ofNullable(null),
+	 * Optional.of(p.getId())); return new PostResponse(p, likes);
+	 * }).collect(Collectors.toList()); }
+	 * 
+	 * public List<PostResponse> getPostsByUserId(Long userId) { List<Post>
+	 * userPosts = postRepository.findByUserId(userId); List<PostResponse>
+	 * postResponses = new ArrayList<>(); for (Post post : userPosts) {
+	 * List<LikeResponse> postLikes =
+	 * likeService.getAllLikesWithParam(Optional.ofNullable(null),
+	 * Optional.of(post.getId())); postResponses.add(new PostResponse(post,
+	 * postLikes)); } return postResponses; }
+	 */
 	public List<PostResponse> getAllPosts() {
-		List<Post> list;
-
-		list = postRepository.findAll();
+		List<Post> list = postRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
 		return list.stream().map(p -> {
 			List<LikeResponse> likes = likeService.getAllLikesWithParam(Optional.ofNullable(null),
 					Optional.of(p.getId()));
@@ -70,13 +85,11 @@ public class PostService {
 
 	public List<PostResponse> getPostsByUserId(Long userId) {
 		List<Post> userPosts = postRepository.findByUserId(userId);
-		List<PostResponse> postResponses = new ArrayList<>();
-		for (Post post : userPosts) {
+		return userPosts.stream().map(post -> {
 			List<LikeResponse> postLikes = likeService.getAllLikesWithParam(Optional.ofNullable(null),
 					Optional.of(post.getId()));
-			postResponses.add(new PostResponse(post, postLikes));
-		}
-		return postResponses;
+			return new PostResponse(post, postLikes);
+		}).collect(Collectors.toList());
 	}
 
 	public Post getOnePostById(Long postId) {

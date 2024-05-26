@@ -6,5 +6,6 @@ public class Constants {
 	public static final String USER_PROFILE = UPLOAD_DIR + "profile/";
 	public static final String POST_PHOTOS_DIR = UPLOAD_DIR + "posts/";
 	public static final String BACKGROUND_DIR = UPLOAD_DIR + "background/";
+	public static final String ARTICLE_PHOTOS_DIR = UPLOAD_DIR + "articles/";
 
 }

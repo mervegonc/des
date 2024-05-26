@@ -6,14 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.tobias.des.entity.ArticlePhotos;
-import com.tobias.des.entity.PostPhotos;
 
 @Repository
-public interface ArticlePhotosRepository extends JpaRepository<PostPhotos, Long> {
+public interface ArticlePhotosRepository extends JpaRepository<ArticlePhotos, Long> {
 
-	List<PostPhotos> findByPostId(Long postId);
+	List<ArticlePhotos> findByArticleId(Long articleId);
 	// Burada PostPhotos entity'si için özel metotlar tanımlanabilir
 
-	void save(ArticlePhotos articlePhoto);
+	void deleteByPhotoName(String photoName);
 
 }

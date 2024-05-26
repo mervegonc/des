@@ -1,8 +1,13 @@
 package com.tobias.des.controller;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.tobias.des.dto.Constants;
 import com.tobias.des.dto.requests.PostCreateRequest;
 import com.tobias.des.dto.requests.PostUpdateRequest;
 import com.tobias.des.dto.responses.PostResponse;
@@ -57,6 +63,19 @@ public class PostController {
 		return postService.getAllPosts();
 	}
 
+	@GetMapping("/{postId}")
+	public ResponseEntity<Post> getOnePostById(@PathVariable Long postId) {
+		Post post = postService.getOnePostById(postId);
+		if (post != null) {
+			// Post nesnesinin oluşturulma zamanını formatlayarak güncelleyin
+			post.setCreatedAtFormatted(post.getFormattedCreatedAt());
+			return ResponseEntity.ok().body(post);
+		} else {
+			// Post bulunamazsa uygun bir hata mesajı döndür
+			return ResponseEntity.notFound().build();
+		}
+	}
+
 	@GetMapping("/myposts/{userId}")
 	public List<Post> getAllPostsByUserId(@PathVariable Long userId) {
 		return postService.getAllPostsByUserId(userId);
@@ -72,11 +91,6 @@ public class PostController {
 		return postService.createOnePost(newPostCreateRequest);
 	}
 
-	@GetMapping("/{postId}")
-	public Post getOnePostById(@PathVariable Long postId) {
-		return postService.getOnePostById(postId);
-	}
-
 	@PutMapping("/{postId}")
 	public Post updateOnePostById(@PathVariable Long postId, @RequestBody PostUpdateRequest updatePost) {
 		return postService.updateOnePostById(postId, updatePost);
@@ -87,17 +101,53 @@ public class PostController {
 	 * postId) { postService.deleteOnePostById(postId); }
 	 */
 
+	/*
+	 * @DeleteMapping("/{postId}") public void deleteOnePostById(@PathVariable Long
+	 * postId) { try { // Postu sil postService.deleteOnePostById(postId); //
+	 * Fotoğrafı sil postService.deletePostPhoto(postId); } catch (IOException e) {
+	 * e.printStackTrace(); // Hata oluşursa uygun bir şekilde işleyin } }
+	 */
 	@DeleteMapping("/{postId}")
 	public void deleteOnePostById(@PathVariable Long postId) {
 		try {
 			// Postu sil
 			postService.deleteOnePostById(postId);
-			// Fotoğrafı sil
+
+			// Fotoğraf klasörünü kontrol et ve varsa içeriğini sil
+			String photoFolderPath = Constants.POST_PHOTOS_DIR + postId;
+			Path photoFolder = Paths.get(photoFolderPath);
+			if (Files.exists(photoFolder)) {
+				FileUtils.deleteDirectory(photoFolder.toFile());
+			}
+
+			// Fotoğraf isimlerini post_photos tablosundan sil
 			postService.deletePostPhoto(postId);
+
+			String articleFolder = "C:/campspring/des/src/main/resources/uploads/posts/" + postId;
+			File folder = new File(articleFolder);
+			if (folder.exists()) {
+				deleteFolder(folder);
+			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			// Hata oluşursa uygun bir şekilde işleyin
 		}
+	}
+
+	private void deleteFolder(File folder) {
+		File[] files = folder.listFiles();
+		if (files != null) {
+			for (File file : files) {
+				if (file.isDirectory()) {
+					deleteFolder(file);
+				} else {
+					file.delete();
+				}
+			}
+		}
+		folder.delete();
+
 	}
 
 	@PutMapping("/photos/{postId}")

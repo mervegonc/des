@@ -1,5 +1,9 @@
 package com.tobias.des.entity;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -12,6 +16,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -37,8 +43,22 @@ public class Article {
 
 	@Column(nullable = false, length = 60)
 	private String subject;
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+	@CreationTimestamp
+	private Date createdAt;
 
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;
+	private String formattedCreatedAt;
 
+	public String getFormattedCreatedAt() {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+		return dateFormat.format(this.createdAt);
+	}
+
+	public void setCreatedAtFormatted(String formattedCreatedAt) {
+		// Oluşturulan formatlanmış oluşturma zamanını ayarla
+		this.formattedCreatedAt = formattedCreatedAt;
+	}
 }

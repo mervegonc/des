@@ -35,32 +35,6 @@ public class CommentService {
 		this.postRepository = postRepository;
 	}
 
-	public List<Comment> getAllCommentsWithParam(Optional<Long> userId, Optional<Long> postId) {
-		if (userId.isPresent() && postId.isPresent()) {
-			return commentRepository.findByUserIdAndPostId(userId.get(), postId.get());
-		} else if (userId.isPresent()) {
-			return commentRepository.findByUserId(userId.get());
-		} else if (postId.isPresent()) {
-			return commentRepository.findByPostId(postId.get());
-		} else
-			return commentRepository.findAll();
-
-	}
-
-	public List<Comment> getAllCommentsWithParam(Optional<Long> userId) {
-		if (userId.isPresent()) {
-			return commentRepository.findByUserId(userId.get());
-		} else if (userId.isPresent()) {
-			return commentRepository.findByUserId(userId.get());
-		} else
-			return commentRepository.findAll();
-
-	}
-
-	public Comment getOneCommentById(Long commentId) {
-		return commentRepository.findById(commentId).orElse(null);
-	}
-
 	public Comment createOneComment(CommentCreateRequest request) {
 		User user = userManager.getOneUserById(request.getUserId());
 		Post post = postService.getOnePostById(request.getPostId());
@@ -108,14 +82,12 @@ public class CommentService {
 		}
 	}
 
-	public List<Comment> getCommentsPostId(Long postId) {
-
-		return commentRepository.findByPostId(postId);
-	}
-
 	public List<CommentResponse> getCommentsResponseByPostId(Long postId) {
 		List<Comment> comments = commentRepository.findByPostId(postId);
-		return comments.stream().map(CommentResponse::new).collect(Collectors.toList());
+		return comments.stream().map(comment -> {
+			comment.setFormattedCreatedAt(comment.getFormattedCreatedAt()); // Formatlı tarihi ayarla
+			return new CommentResponse(comment);
+		}).collect(Collectors.toList());
 	}
 
 }

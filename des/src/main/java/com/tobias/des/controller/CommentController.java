@@ -43,11 +43,6 @@ public class CommentController {
 			throws Exception {
 		commentService.deleteComment(userId, postId, commentId);
 	}
-	/*
-	 * @GetMapping("/posts/{postId}/comments") public List<Comment>
-	 * getAllCommentsByPostId(@PathVariable Long postId) { return
-	 * commentService.getCommentsPostId(postId); }
-	 */
 
 	@GetMapping("/post/{postId}/comment")
 	public List<CommentResponse> usersCommentsByPostId(@PathVariable Long postId) {

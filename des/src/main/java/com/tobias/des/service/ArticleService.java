@@ -47,10 +47,6 @@ public class ArticleService {
 
 	}
 
-	public List<Article> getAllArticlesByUserId(Long userId) {
-		return articleRepository.findByUserId(userId);
-	}
-
 	public List<Article> searchByContent(String keyword) {
 		return articleRepository.findByContentContaining(keyword);
 	}

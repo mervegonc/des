@@ -64,21 +64,8 @@ public class PostController {
 	}
 
 	@GetMapping("/{postId}")
-	public ResponseEntity<Post> getOnePostById(@PathVariable Long postId) {
-		Post post = postService.getOnePostById(postId);
-		if (post != null) {
-			// Post nesnesinin oluşturulma zamanını formatlayarak güncelleyin
-			post.setCreatedAtFormatted(post.getFormattedCreatedAt());
-			return ResponseEntity.ok().body(post);
-		} else {
-			// Post bulunamazsa uygun bir hata mesajı döndür
-			return ResponseEntity.notFound().build();
-		}
-	}
-
-	@GetMapping("/myposts/{userId}")
-	public List<Post> getAllPostsByUserId(@PathVariable Long userId) {
-		return postService.getAllPostsByUserId(userId);
+	public ResponseEntity<Post> getOnePostsById(@PathVariable Long postId) {
+		return postService.getOnePostsById(postId);
 	}
 
 	@GetMapping("/my/{userId}")
@@ -96,17 +83,6 @@ public class PostController {
 		return postService.updateOnePostById(postId, updatePost);
 	}
 
-	/*
-	 * @DeleteMapping("/{postId}") public void deleteOnePostById(@PathVariable Long
-	 * postId) { postService.deleteOnePostById(postId); }
-	 */
-
-	/*
-	 * @DeleteMapping("/{postId}") public void deleteOnePostById(@PathVariable Long
-	 * postId) { try { // Postu sil postService.deleteOnePostById(postId); //
-	 * Fotoğrafı sil postService.deletePostPhoto(postId); } catch (IOException e) {
-	 * e.printStackTrace(); // Hata oluşursa uygun bir şekilde işleyin } }
-	 */
 	@DeleteMapping("/{postId}")
 	public void deleteOnePostById(@PathVariable Long postId) {
 		try {
@@ -162,23 +138,6 @@ public class PostController {
 		}
 	}
 
-	/*
-	 * @GetMapping("/getphotos/{postId}") public ResponseEntity<List<String>>
-	 * getPostPhotos(@PathVariable Long postId) { try { List<String> photoDataList =
-	 * postService.getPostPhotoData(postId); return
-	 * ResponseEntity.ok().body(photoDataList); } catch (IOException e) {
-	 * e.printStackTrace(); return
-	 * ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); } }
-	 */
-
-	/*
-	 * @GetMapping("/getphotos/{postId}") public ResponseEntity<List<String>>
-	 * getPostPhotos(@PathVariable Long postId) { try { List<String> photoUrls =
-	 * postService.getPostPhotoUrls(postId); return
-	 * ResponseEntity.ok().body(photoUrls); } catch (IOException e) {
-	 * e.printStackTrace(); return
-	 * ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); } }
-	 */
 	@GetMapping("/photos/{postId}/{photoId}")
 	public ResponseEntity<Resource> getPostPhoto(@PathVariable Long postId, @PathVariable String photoId) {
 		try {

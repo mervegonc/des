@@ -60,11 +60,6 @@ public class CommentService {
 			return null;
 	}
 
-	/*
-	 * @Transactional public void deleteComment(Long userId, Long postId, Long
-	 * commentId) { commentRepository.deleteByUserIdAndPostIdAndId(userId, postId,
-	 * commentId); }
-	 */
 	@Transactional
 	public void deleteComment(Long userId, Long postId, Long commentId) throws Exception {
 		Optional<Comment> commentOptional = commentRepository.findById(commentId);

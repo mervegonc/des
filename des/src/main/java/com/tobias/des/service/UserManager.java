@@ -12,10 +12,13 @@ import java.util.Set;
 
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tobias.des.dto.Constants;
 import com.tobias.des.dto.LoginDto;
 import com.tobias.des.dto.SignupDto;
+import com.tobias.des.dto.responses.UserResponse;
 import com.tobias.des.entity.Role;
 import com.tobias.des.entity.User;
 import com.tobias.des.jwt.JwtTokenProvider;
@@ -121,6 +125,42 @@ public class UserManager implements UserService {
 	@Override
 	public List<User> getAllUsers() {
 		return userRepository.findAll();
+	}
+
+	public ResponseEntity<UserResponse> getCurrentUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+
+		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+		String usernameOrEmail = userDetails.getUsername();
+		Long userId = getUserIdByUsername(usernameOrEmail);
+
+		if (userId == null) {
+			throw new UsernameNotFoundException("User not found with username: " + usernameOrEmail);
+		}
+
+		User user = getOneUserById(userId);
+		UserResponse userResponse = convertToUserResponse(user);
+		return ResponseEntity.ok(userResponse);
+	}
+
+	public UserResponse convertToUserResponse(User user) {
+		if (user == null) {
+			return null;
+		}
+
+		UserResponse userResponse = new UserResponse();
+		userResponse.setId(user.getId());
+		userResponse.setName(user.getName());
+		userResponse.setUsername(user.getUsername());
+		userResponse.setEmail(user.getEmail());
+		userResponse.setBio(user.getBio());
+		userResponse.setConnections(user.getConnections());
+		userResponse.setGender(user.getGender());
+
+		return userResponse;
 	}
 
 	@Override

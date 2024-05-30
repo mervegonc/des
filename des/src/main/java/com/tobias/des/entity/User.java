@@ -2,6 +2,8 @@ package com.tobias.des.entity;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,9 +42,11 @@ public class User {
 	@Column(nullable = false, unique = true)
 	private String email;
 
+	@JsonIgnore
 	@Column(nullable = false)
 	private String password;
 
+	@JsonIgnore
 	@Column(nullable = true, unique = true)
 	private String passwordReminder;
 
@@ -59,6 +63,7 @@ public class User {
 		MAN, WOMAN, OTHER
 	}
 
+	@JsonIgnore
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
 	private Set<Role> roles;

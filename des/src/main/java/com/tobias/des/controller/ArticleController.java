@@ -60,11 +60,6 @@ public class ArticleController {
 		return articleService.getAllArticles();
 	}
 
-	@GetMapping("/myarticles/{userId}")
-	public List<Article> getAllArticlesByUserId(@PathVariable Long userId) {
-		return articleService.getAllArticlesByUserId(userId);
-	}
-
 	@GetMapping("/my/{userId}")
 	public List<ArticleResponse> getArticlesByUserId(@PathVariable Long userId) {
 		return articleService.getArticlesByUserId(userId);
@@ -125,18 +120,6 @@ public class ArticleController {
 
 	}
 
-	@PutMapping("/photos/{articleId}")
-	public ResponseEntity<List<String>> uploadArticlePhotos(@PathVariable Long articleId,
-			@RequestParam("files") List<MultipartFile> files) {
-		try {
-			List<String> photoNames = articleService.uploadArticlePhotos(articleId, files);
-			return ResponseEntity.ok().body(photoNames);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-		}
-	}
-
 	@GetMapping("/photos/{articleId}/{photoId}")
 	public ResponseEntity<Resource> getArticlePhoto(@PathVariable Long articleId, @PathVariable String photoId) {
 		try {
@@ -155,6 +138,18 @@ public class ArticleController {
 	public ResponseEntity<List<String>> getAllArticlePhotos(@PathVariable Long articleId) {
 		List<String> photoNames = articleService.getAllArticlePhotos(articleId);
 		return ResponseEntity.ok().body(photoNames);
+	}
+
+	@PutMapping("/photos/{articleId}")
+	public ResponseEntity<List<String>> uploadArticlePhotos(@PathVariable Long articleId,
+			@RequestParam("files") List<MultipartFile> files) {
+		try {
+			List<String> photoNames = articleService.uploadArticlePhotos(articleId, files);
+			return ResponseEntity.ok().body(photoNames);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
 	}
 
 }

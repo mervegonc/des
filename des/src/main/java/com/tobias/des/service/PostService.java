@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,10 +46,6 @@ public class PostService {
 
 	}
 
-	public List<Post> getAllPostsByUserId(Long userId) {
-		return postRepository.findByUserId(userId);
-	}
-
 	public List<Post> searchByContent(String keyword) {
 		return postRepository.findByContentContaining(keyword);
 	}
@@ -58,22 +55,6 @@ public class PostService {
 		this.likeService = likeService;
 	}
 
-	/*
-	 * public List<PostResponse> getAllPosts() { List<Post> list =
-	 * postRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")); return
-	 * list.stream().map(p -> { List<LikeResponse> likes =
-	 * likeService.getAllLikesWithParam(Optional.ofNullable(null),
-	 * Optional.of(p.getId())); return new PostResponse(p, likes);
-	 * }).collect(Collectors.toList()); }
-	 * 
-	 * public List<PostResponse> getPostsByUserId(Long userId) { List<Post>
-	 * userPosts = postRepository.findByUserId(userId); List<PostResponse>
-	 * postResponses = new ArrayList<>(); for (Post post : userPosts) {
-	 * List<LikeResponse> postLikes =
-	 * likeService.getAllLikesWithParam(Optional.ofNullable(null),
-	 * Optional.of(post.getId())); postResponses.add(new PostResponse(post,
-	 * postLikes)); } return postResponses; }
-	 */
 	public List<PostResponse> getAllPosts() {
 		List<Post> list = postRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
 		return list.stream().map(p -> {
@@ -94,6 +75,16 @@ public class PostService {
 
 	public Post getOnePostById(Long postId) {
 		return postRepository.findById(postId).orElse(null);
+	}
+
+	public ResponseEntity<Post> getOnePostsById(Long postId) {
+		Post post = postRepository.findById(postId).orElse(null);
+		if (post != null) {
+			post.setCreatedAtFormatted(post.getFormattedCreatedAt());
+			return ResponseEntity.ok().body(post);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	/*

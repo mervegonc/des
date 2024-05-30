@@ -67,14 +67,6 @@ public class SpringSecurityConfig {
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/article/**");
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/articlelike/**");
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/articlecomment/**");
-			/*
-			 * authorize.requestMatchers(HttpMethod.PUT, "/api/elasticsearch/posts/**");
-			 * authorize.requestMatchers(HttpMethod.GET,
-			 * "/api/elasticsearch/posts/search/**");
-			 * authorize.requestMatchers(HttpMethod.DELETE, "/api/elasticsearch/posts/**");
-			 * authorize.requestMatchers(HttpMethod.POST, "/api/elasticsearch/posts/**");
-			 */
-
 			authorize.anyRequest().authenticated();
 		}).httpBasic(Customizer.withDefaults());
 

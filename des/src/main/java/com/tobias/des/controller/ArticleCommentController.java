@@ -57,11 +57,6 @@ public class ArticleCommentController {
 			@PathVariable Long articleCommentId) throws Exception {
 		articleCommentService.deleteArticleComment(userId, articleId, articleCommentId);
 	}
-	/*
-	 * @GetMapping("/posts/{postId}/comments") public List<Comment>
-	 * getAllCommentsByPostId(@PathVariable Long postId) { return
-	 * commentService.getCommentsPostId(postId); }
-	 */
 
 	@GetMapping("/article/{articleId}/articleComment")
 	public List<ArticleCommentResponse> usersCommentsByArticleId(@PathVariable Long articleId) {

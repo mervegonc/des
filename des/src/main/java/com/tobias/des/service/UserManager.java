@@ -30,9 +30,13 @@ import com.tobias.des.dto.SignupDto;
 import com.tobias.des.dto.responses.UserResponse;
 import com.tobias.des.entity.Role;
 import com.tobias.des.entity.User;
+import com.tobias.des.entity.UserFollower;
 import com.tobias.des.jwt.JwtTokenProvider;
 import com.tobias.des.repository.RoleRepository;
+import com.tobias.des.repository.UserFollowerRepository;
 import com.tobias.des.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserManager implements UserService {
@@ -40,16 +44,19 @@ public class UserManager implements UserService {
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final UserFollowerRepository userFollowerRepository;
 	private final AuthenticationManager authenticationManager;
 	private final JwtTokenProvider jwtTokenProvider;
 
-	public UserManager(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder,
+	public UserManager(UserRepository userRepository, RoleRepository roleRepository,
+			UserFollowerRepository userFollowerRepository, PasswordEncoder passwordEncoder,
 			AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
 		this.userRepository = userRepository;
 		this.roleRepository = roleRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.authenticationManager = authenticationManager;
 		this.jwtTokenProvider = jwtTokenProvider;
+		this.userFollowerRepository = userFollowerRepository;
 
 	}
 
@@ -146,6 +153,7 @@ public class UserManager implements UserService {
 		return ResponseEntity.ok(userResponse);
 	}
 
+	@Override
 	public UserResponse convertToUserResponse(User user) {
 		if (user == null) {
 			return null;
@@ -157,7 +165,6 @@ public class UserManager implements UserService {
 		userResponse.setUsername(user.getUsername());
 		userResponse.setEmail(user.getEmail());
 		userResponse.setBio(user.getBio());
-		userResponse.setConnections(user.getConnections());
 		userResponse.setGender(user.getGender());
 
 		return userResponse;
@@ -193,7 +200,7 @@ public class UserManager implements UserService {
 			foundUser.setBio(newUserInfo.getBio());
 
 			foundUser.setGender(newUserInfo.getGender());
-			foundUser.setConnections(newUserInfo.getConnections()); // connections alanını da güncelle
+
 			// userRepository aracılığıyla değişiklikleri veritabanına kaydet
 			userRepository.save(foundUser);
 			return foundUser;
@@ -297,4 +304,43 @@ public class UserManager implements UserService {
 		return null;
 	}
 
+	@Override
+	public List<UserFollower> getFollowers(Long userId) {
+		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+		return userFollowerRepository.findByUser(user);
+	}
+
+	public List<UserFollower> getFollowing(Long userId) {
+		User follower = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Follower not found"));
+		return userFollowerRepository.findByFollower(follower);
+	}
+
+	// Yeni metod
+	public boolean isFollowing(Long userId, Long followerId) {
+		return userFollowerRepository.existsByUserIdAndFollowerId(userId, followerId);
+	}
+
+	@Override
+	@Transactional
+	public void followUser(Long userId, Long followerId) {
+		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+		User follower = userRepository.findById(followerId)
+				.orElseThrow(() -> new RuntimeException("Follower not found"));
+
+		UserFollower userFollower = new UserFollower();
+		userFollower.setUser(user);
+		userFollower.setFollower(follower);
+		userFollowerRepository.save(userFollower);
+	}
+
+	@Override
+	@Transactional
+	public void unfollowUser(Long userId, Long followerId) {
+		List<UserFollower> userFollowers = userFollowerRepository.findByUserId(userId);
+		for (UserFollower userFollower : userFollowers) {
+			if (userFollower.getFollower().getId().equals(followerId)) {
+				userFollowerRepository.delete(userFollower);
+			}
+		}
+	}
 }

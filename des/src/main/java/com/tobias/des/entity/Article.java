@@ -48,6 +48,9 @@ public class Article {
 	@CreationTimestamp
 	private Date createdAt;
 
+	@Column(nullable = true, length = 255)
+	private String connections;
+
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;
 	private String formattedCreatedAt;

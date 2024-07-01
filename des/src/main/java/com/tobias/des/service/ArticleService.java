@@ -80,6 +80,18 @@ public class ArticleService {
 		return articleRepository.findById(articleId).orElse(null);
 	}
 
+	public ArticleResponse getOneArticleByArticleId(Long articleId) {
+		Article article = articleRepository.findById(articleId).orElse(null);
+		if (article != null) {
+			article.setCreatedAtFormatted(article.getFormattedCreatedAt());
+			List<ArticleLikeResponse> likes = articleLikeService.getAllArticleLikesWithParam(Optional.ofNullable(null),
+					Optional.of(articleId));
+			return new ArticleResponse(article, likes);
+		} else {
+			return null;
+		}
+	}
+
 	public ArticleResponse createOneArticle(ArticleCreateRequest newArticleCreateRequest) {
 		User user = authManager.getOneUserById(newArticleCreateRequest.getUserId());
 		if (user == null)
@@ -87,6 +99,7 @@ public class ArticleService {
 		Article toSave = new Article();
 		toSave.setSubject(newArticleCreateRequest.getSubject());
 		toSave.setContent(newArticleCreateRequest.getContent());
+		toSave.setConnections(newArticleCreateRequest.getConnections());
 		toSave.setUser(user);
 		Article savedArticle = articleRepository.save(toSave);
 
@@ -102,6 +115,7 @@ public class ArticleService {
 			Article toUpdate = article.get();
 			toUpdate.setSubject(updateArticle.getSubject());
 			toUpdate.setContent(updateArticle.getContent());
+			toUpdate.setConnections(updateArticle.getConnections());
 			articleRepository.save(toUpdate);
 			return toUpdate;
 		}

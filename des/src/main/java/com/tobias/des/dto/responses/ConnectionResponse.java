@@ -1,7 +1,5 @@
 package com.tobias.des.dto.responses;
 
-import com.tobias.des.entity.User.Gender;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,11 +9,9 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse {
+public class ConnectionResponse {
 	private Long id;
 	private String name;
-	private String username;
-	private String email;
-	private String bio;
-	private Gender gender;
+	private String connection;
+
 }

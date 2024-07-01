@@ -8,6 +8,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,6 +28,7 @@ import jakarta.persistence.Table;
 
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,23 +38,20 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL) // Null olan alanları JSON'a dahil etmez
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" }) // Hibernate proxy nesnelerini göz ardı et
 public class Post {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	Long id;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER) // EAGER olarak değiştirildi
 	@JoinColumn(name = "user_id", nullable = false)
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	User user;
 
 	String title;
 
-	/*
-	 * @Lob
-	 * 
-	 * @Column(columnDefinition = "text") String text;
-	 */
 	@Column(length = 380)
 	String text;
 
@@ -58,20 +60,46 @@ public class Post {
 	@CreationTimestamp
 	private Date createdAt;
 
-	// Post entity'sindeki ilişkilendirme
+	@ManyToOne(fetch = FetchType.EAGER) // EAGER olarak değiştirildi
+	@JoinColumn(name = "article_id")
+	private Article article;
+
+	@Transient
+	private String formattedCreatedAt;
+
+	@Column(length = 200)
+	String connections;
+
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
 	private List<PostPhotos> photos;
 
-	private String formattedCreatedAt;
-
-	public String getFormattedCreatedAt() {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-		return dateFormat.format(this.createdAt);
+	@JsonProperty("articleId")
+	public Long getArticleId() {
+		return article != null ? article.getId() : null;
 	}
 
-	public void setCreatedAtFormatted(String formattedCreatedAt) {
-		// Oluşturulan formatlanmış oluşturma zamanını ayarla
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public String getFormattedCreatedAt() {
+		if (createdAt != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+			return sdf.format(createdAt);
+		}
+		return null;
+	}
+
+	public void setFormattedCreatedAt(String formattedCreatedAt) {
 		this.formattedCreatedAt = formattedCreatedAt;
 	}
 
+	public void setCreatedAtFormatted(String formattedCreatedAt2) {
+		// TODO Auto-generated method stub
+
+	}
 }

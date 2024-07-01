@@ -8,7 +8,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.tobias.des.dto.LoginDto;
 import com.tobias.des.dto.SignupDto;
+import com.tobias.des.dto.responses.UserResponse;
 import com.tobias.des.entity.User;
+import com.tobias.des.entity.UserFollower;
 
 public interface UserService {
 
@@ -46,4 +48,11 @@ public interface UserService {
 
 	User findById(Long userId);
 
+	UserResponse convertToUserResponse(User user);
+
+	List<UserFollower> getFollowers(Long userId);
+
+	void followUser(Long userId, Long followerId);
+
+	void unfollowUser(Long userId, Long followerId);
 }

@@ -9,5 +9,5 @@ public class ArticleCreateRequest {
 	String content;
 	String subject;
 	Long userId;
-
+	String connections;
 }

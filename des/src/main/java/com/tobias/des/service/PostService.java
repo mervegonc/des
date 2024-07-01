@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,27 +22,37 @@ import com.tobias.des.dto.requests.PostCreateRequest;
 import com.tobias.des.dto.requests.PostUpdateRequest;
 import com.tobias.des.dto.responses.LikeResponse;
 import com.tobias.des.dto.responses.PostResponse;
+import com.tobias.des.entity.Article;
 import com.tobias.des.entity.Post;
 import com.tobias.des.entity.PostPhotos;
-import com.tobias.des.entity.User;
+import com.tobias.des.entity.PostVideos;
+import com.tobias.des.repository.ArticleRepository;
 import com.tobias.des.repository.PostPhotosRepository;
 import com.tobias.des.repository.PostRepository;
+import com.tobias.des.repository.PostVideosRepository;
+import com.tobias.des.repository.UserRepository;
 
 @Service
 public class PostService {
 
 	private PostRepository postRepository;
 	private PostPhotosRepository postPhotosRepository;
+	private PostVideosRepository postVideosRepository;
 	private UserManager authManager;
 	private LikeService likeService;
+	private ArticleRepository articleRepository;
+	private UserRepository userRepository;
 
-	public PostService(PostRepository postRepository, UserManager authManager,
+	public PostService(PostRepository postRepository, ArticleRepository articleRepository,
+			UserRepository userRepository, UserManager authManager, PostVideosRepository postVideosRepository,
 			PostPhotosRepository postPhotosRepository) {
 		super();
 		this.postRepository = postRepository;
 		this.authManager = authManager;
+		this.articleRepository = articleRepository;
+		this.userRepository = userRepository;
 		this.postPhotosRepository = postPhotosRepository;
-
+		this.postVideosRepository = postVideosRepository;
 	}
 
 	public List<Post> searchByContent(String keyword) {
@@ -64,6 +73,21 @@ public class PostService {
 		}).collect(Collectors.toList());
 	}
 
+	public Post getOnePostById(Long postId) {
+		return postRepository.findById(postId).orElse(null);
+	}
+
+	public PostResponse getOnePostByPostId(Long postId) {
+		Post post = postRepository.findById(postId).orElse(null);
+		if (post != null) {
+			post.setCreatedAtFormatted(post.getFormattedCreatedAt());
+			List<LikeResponse> likes = likeService.getAllLikesWithParam(Optional.ofNullable(null), Optional.of(postId));
+			return new PostResponse(post, likes);
+		} else {
+			return null;
+		}
+	}
+
 	public List<PostResponse> getPostsByUserId(Long userId) {
 		List<Post> userPosts = postRepository.findByUserId(userId);
 		return userPosts.stream().map(post -> {
@@ -73,51 +97,52 @@ public class PostService {
 		}).collect(Collectors.toList());
 	}
 
-	public Post getOnePostById(Long postId) {
-		return postRepository.findById(postId).orElse(null);
-	}
+	public Post createOnePost(PostCreateRequest newPostCreateRequest) {
+		Post newPost = new Post();
+		newPost.setTitle(newPostCreateRequest.getTitle());
+		newPost.setText(newPostCreateRequest.getText());
+		newPost.setConnections(newPostCreateRequest.getConnections());
+		newPost.setUser(userRepository.findById(newPostCreateRequest.getUserId()).orElse(null)); // Kullanıcıyı
+																									// ilişkilendirme
 
-	public ResponseEntity<Post> getOnePostsById(Long postId) {
-		Post post = postRepository.findById(postId).orElse(null);
-		if (post != null) {
-			post.setCreatedAtFormatted(post.getFormattedCreatedAt());
-			return ResponseEntity.ok().body(post);
-		} else {
-			return ResponseEntity.notFound().build();
+		if (newPostCreateRequest.getArticleId() != null) {
+			Article article = articleRepository.findById(newPostCreateRequest.getArticleId()).orElse(null);
+			if (article != null) {
+				newPost.setArticle(article);
+			} else {
+				return null; // İlişkili makale bulunamadıysa null döndür
+			}
 		}
+
+		return postRepository.save(newPost); // Post nesnesini kaydet ve döndür
 	}
 
 	/*
-	 * public Post createOnePost(PostCreateRequest newPostCreateRequest) { User user
-	 * = authManager.getOneUserById(newPostCreateRequest.getUserId()); if (user ==
-	 * null) return null; Post toSave = new Post();
-	 * toSave.setId(newPostCreateRequest.getId());
-	 * toSave.setText(newPostCreateRequest.getText());
-	 * toSave.setTitle(newPostCreateRequest.getTitle()); toSave.setUser(user);
-	 * return postRepository.save(toSave); }
+	 * public Post updateOnePostById(Long postId, PostUpdateRequest updatePost) {
+	 * Optional<Post> post = postRepository.findById(postId); if (post.isPresent())
+	 * { Post toUpdate = post.get(); toUpdate.setText(updatePost.getText());
+	 * toUpdate.setTitle(updatePost.getTitle());
+	 * toUpdate.setTitle(updatePost.getTitle()); postRepository.save(toUpdate);
+	 * return toUpdate; } return null; }
 	 */
-	public PostResponse createOnePost(PostCreateRequest newPostCreateRequest) {
-		User user = authManager.getOneUserById(newPostCreateRequest.getUserId());
-		if (user == null)
-			return null;
-		Post toSave = new Post();
-		toSave.setText(newPostCreateRequest.getText());
-		toSave.setTitle(newPostCreateRequest.getTitle());
-		toSave.setUser(user);
-		Post savedPost = postRepository.save(toSave);
-
-		// PostResponse oluştur ve döndür
-		List<LikeResponse> likes = likeService.getAllLikesWithParam(Optional.ofNullable(null),
-				Optional.of(savedPost.getId()));
-		return new PostResponse(savedPost, likes);
-	}
-
 	public Post updateOnePostById(Long postId, PostUpdateRequest updatePost) {
 		Optional<Post> post = postRepository.findById(postId);
 		if (post.isPresent()) {
 			Post toUpdate = post.get();
 			toUpdate.setText(updatePost.getText());
 			toUpdate.setTitle(updatePost.getTitle());
+			toUpdate.setConnections(updatePost.getConnections());
+			if (updatePost.getArticleId() != null) {
+				Article article = articleRepository.findById(updatePost.getArticleId()).orElse(null);
+				if (article != null) {
+					toUpdate.setArticle(article);
+				} else {
+					return null; // If related article is not found, return null
+				}
+			} else {
+				toUpdate.setArticle(null); // If no article ID is provided, unset the article
+			}
+
 			postRepository.save(toUpdate);
 			return toUpdate;
 		}
@@ -125,6 +150,19 @@ public class PostService {
 	}
 
 	public void deleteOnePostById(Long postId) {
+		// Posta bağlı tüm fotoğrafları sil
+		List<PostPhotos> postPhotos = postPhotosRepository.findByPostId(postId);
+		for (PostPhotos postPhoto : postPhotos) {
+			postPhotosRepository.delete(postPhoto);
+		}
+
+		// Posta bağlı tüm videoları sil
+		List<PostVideos> postVideos = postVideosRepository.findByPostId(postId);
+		for (PostVideos postVideo : postVideos) {
+			postVideosRepository.delete(postVideo);
+		}
+
+		// Postu sil
 		postRepository.deleteById(postId);
 	}
 
@@ -150,73 +188,6 @@ public class PostService {
 			return null; // veya uygun bir hata mesajı döndürebilirsiniz.
 		}
 	}
-
-	/*
-	 * public List<String> uploadPostPhotos(Long postId, List<MultipartFile> files)
-	 * throws Exception { List<String> photoNames = new ArrayList<>();
-	 * 
-	 * for (MultipartFile file : files) { if (file.isEmpty()) { throw new
-	 * Exception("Dosya boş olamaz"); }
-	 * 
-	 * try { // Dosya adını oluştur String extension =
-	 * StringUtils.getFilenameExtension(file.getOriginalFilename()); String fileName
-	 * = postId + "_" + UUID.randomUUID().toString() + "." + extension; String
-	 * filePath = Constants.POST_PHOTOS_DIR + fileName;
-	 * 
-	 * // Dosyayı kaydet byte[] bytes = file.getBytes(); Path path =
-	 * Paths.get(filePath); Files.write(path, bytes);
-	 * 
-	 * photoNames.add(fileName); } catch (Exception e) { throw new
-	 * Exception("Dosya yüklenirken bir hata oluştu", e); } }
-	 * 
-	 * return photoNames; }
-	 * 
-	 */
-	/*
-	 * public List<String> uploadPostPhotos(Long postId, List<MultipartFile> files)
-	 * throws Exception { List<String> photoNames = new ArrayList<>();
-	 * 
-	 * for (MultipartFile file : files) { if (file.isEmpty()) { throw new
-	 * Exception("Dosya boş olamaz"); }
-	 * 
-	 * try { // Dosya adını oluştur String extension =
-	 * StringUtils.getFilenameExtension(file.getOriginalFilename()); String fileName
-	 * = postId + "_" + UUID.randomUUID().toString() + "." + extension; String
-	 * filePath = Constants.POST_PHOTOS_DIR + fileName;
-	 * 
-	 * // Dosyayı kaydet byte[] bytes = file.getBytes(); Path path =
-	 * Paths.get(filePath); Files.write(path, bytes);
-	 * 
-	 * photoNames.add(fileName); } catch (Exception e) { throw new
-	 * Exception("Dosya yüklenirken bir hata oluştu", e); } }
-	 * 
-	 * return photoNames; }
-	 */
-	/*
-	 * public List<String> uploadPostPhotos(Long postId, List<MultipartFile> files)
-	 * throws Exception { List<String> photoNames = new ArrayList<>();
-	 * 
-	 * // Postun fotoğraflarını saklamak için bir klasör oluştur String
-	 * postPhotoDirPath = Constants.POST_PHOTOS_DIR + postId + "/";
-	 * Files.createDirectories(Paths.get(postPhotoDirPath));
-	 * 
-	 * // Fotoğrafları kaydet for (int i = 0; i < files.size(); i++) { MultipartFile
-	 * file = files.get(i); if (file.isEmpty()) { throw new
-	 * Exception("Dosya boş olamaz"); }
-	 * 
-	 * try { // Dosya adını oluştur String extension =
-	 * StringUtils.getFilenameExtension(file.getOriginalFilename()); String fileName
-	 * = postId + "_" + (i + 1) + "." + extension; String filePath =
-	 * postPhotoDirPath + fileName;
-	 * 
-	 * // Dosyayı kaydet byte[] bytes = file.getBytes(); Path path =
-	 * Paths.get(filePath); Files.write(path, bytes);
-	 * 
-	 * photoNames.add(fileName); } catch (Exception e) { throw new
-	 * Exception("Dosya yüklenirken bir hata oluştu", e); } }
-	 * 
-	 * return photoNames; }
-	 */
 
 	public List<String> uploadPostPhotos(Long postId, List<MultipartFile> files) throws Exception {
 		List<String> photoNames = new ArrayList<>();
@@ -283,5 +254,59 @@ public class PostService {
 			photoNames.add(postPhoto.getPhotoName());
 		}
 		return photoNames;
+	}
+
+	public List<String> uploadPostVideos(Long postId, List<MultipartFile> files) throws Exception {
+		List<String> videoNames = new ArrayList<>();
+		String postVideoDirPath = Constants.VIDEO_UPLOAD_DIR + postId + "/";
+		Files.createDirectories(Paths.get(postVideoDirPath));
+
+		for (int i = 0; i < files.size(); i++) {
+			MultipartFile file = files.get(i);
+			if (file.isEmpty()) {
+				throw new Exception("Dosya boş olamaz");
+			}
+
+			try {
+				String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
+				String fileName = postId + "_" + (i + 1) + "." + extension;
+				String filePath = postVideoDirPath + fileName;
+
+				byte[] bytes = file.getBytes();
+				Path path = Paths.get(filePath);
+				Files.write(path, bytes);
+
+				videoNames.add(fileName);
+
+				PostVideos postVideo = new PostVideos();
+				postVideo.setVideoName(fileName);
+				postVideo.setPost(postRepository.getById(postId));
+				postVideosRepository.save(postVideo);
+			} catch (Exception e) {
+				throw new Exception("Dosya yüklenirken bir hata oluştu", e);
+			}
+		}
+
+		return videoNames;
+	}
+
+	public Resource getPostVideo(Long postId, String videoId) throws IOException {
+		String videoPath = Constants.VIDEO_UPLOAD_DIR + postId + "/" + videoId;
+		Path filePath = Paths.get(videoPath);
+		Resource resource = new PathResource(filePath);
+		if (Files.exists(filePath) && Files.isReadable(filePath)) {
+			return resource;
+		} else {
+			throw new IOException("Post video not found for post id: " + postId + " and video id: " + videoId);
+		}
+	}
+
+	public List<String> getAllPostVideos(Long postId) {
+		List<String> videoNames = new ArrayList<>();
+		List<PostVideos> postVideos = postVideosRepository.findByPostId(postId);
+		for (PostVideos postVideo : postVideos) {
+			videoNames.add(postVideo.getVideoName());
+		}
+		return videoNames;
 	}
 }

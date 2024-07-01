@@ -51,17 +51,22 @@ public class SpringSecurityConfig {
 			authorize.requestMatchers(HttpMethod.GET, "/api/article/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/articlelike/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/articlecomment/**");
+
 			authorize.requestMatchers(HttpMethod.POST, "/api/article/create");
 			authorize.requestMatchers(HttpMethod.POST, "/api/like/**");
 			authorize.requestMatchers(HttpMethod.POST, "/api/articlelike/**");
 			authorize.requestMatchers(HttpMethod.POST, "/api/articlecomment/**");
+			authorize.requestMatchers(HttpMethod.POST, "/api/post/**");
+
 			authorize.requestMatchers(HttpMethod.PUT, "/api/post/**");
 			authorize.requestMatchers(HttpMethod.PUT, "/api/user/**");
 			authorize.requestMatchers(HttpMethod.PUT, "/api/comment/**");
 			authorize.requestMatchers(HttpMethod.PUT, "/api/article/**");
 			authorize.requestMatchers(HttpMethod.PUT, "/api/articlelike/**");
 			authorize.requestMatchers(HttpMethod.PUT, "/api/articlecomment/**");
+
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/like/**");
+			authorize.requestMatchers(HttpMethod.DELETE, "/api/user/connections/delete/**");
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/post/**");
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/comment/**");
 			authorize.requestMatchers(HttpMethod.DELETE, "/api/article/**");

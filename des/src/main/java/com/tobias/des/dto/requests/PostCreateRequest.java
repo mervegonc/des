@@ -9,4 +9,6 @@ public class PostCreateRequest {
 	String text;
 	String title;
 	Long userId;
+	private Long articleId;
+	private String connections;
 }

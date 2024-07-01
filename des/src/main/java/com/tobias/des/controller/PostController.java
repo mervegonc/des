@@ -64,8 +64,13 @@ public class PostController {
 	}
 
 	@GetMapping("/{postId}")
-	public ResponseEntity<Post> getOnePostsById(@PathVariable Long postId) {
-		return postService.getOnePostsById(postId);
+	public ResponseEntity<PostResponse> getOnePostByPostId(@PathVariable Long postId) {
+		PostResponse response = postService.getOnePostByPostId(postId);
+		if (response != null) {
+			return ResponseEntity.ok().body(response);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	@GetMapping("/my/{userId}")
@@ -73,9 +78,19 @@ public class PostController {
 		return postService.getPostsByUserId(userId);
 	}
 
+	/*
+	 * @PostMapping public PostResponse createOnePost(@RequestBody PostCreateRequest
+	 * newPostCreateRequest) { return
+	 * postService.createOnePost(newPostCreateRequest); }
+	 */
 	@PostMapping
-	public PostResponse createOnePost(@RequestBody PostCreateRequest newPostCreateRequest) {
-		return postService.createOnePost(newPostCreateRequest);
+	public ResponseEntity<Post> createOnePost(@RequestBody PostCreateRequest newPostCreateRequest) {
+		Post createdPost = postService.createOnePost(newPostCreateRequest);
+		if (createdPost != null) {
+			return ResponseEntity.ok(createdPost);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	@PutMapping("/{postId}")
@@ -86,7 +101,7 @@ public class PostController {
 	@DeleteMapping("/{postId}")
 	public void deleteOnePostById(@PathVariable Long postId) {
 		try {
-			// Postu sil
+			// Postu ve ilişkili verileri sil
 			postService.deleteOnePostById(postId);
 
 			// Fotoğraf klasörünü kontrol et ve varsa içeriğini sil
@@ -96,13 +111,11 @@ public class PostController {
 				FileUtils.deleteDirectory(photoFolder.toFile());
 			}
 
-			// Fotoğraf isimlerini post_photos tablosundan sil
-			postService.deletePostPhoto(postId);
-
-			String articleFolder = "C:/campspring/des/src/main/resources/uploads/posts/" + postId;
-			File folder = new File(articleFolder);
-			if (folder.exists()) {
-				deleteFolder(folder);
+			// Video klasörünü kontrol et ve varsa içeriğini sil
+			String videoFolderPath = Constants.VIDEO_UPLOAD_DIR + postId;
+			Path videoFolder = Paths.get(videoFolderPath);
+			if (Files.exists(videoFolder)) {
+				FileUtils.deleteDirectory(videoFolder.toFile());
 			}
 
 		} catch (IOException e) {
@@ -123,7 +136,6 @@ public class PostController {
 			}
 		}
 		folder.delete();
-
 	}
 
 	@PutMapping("/photos/{postId}")
@@ -158,4 +170,33 @@ public class PostController {
 		return ResponseEntity.ok().body(photoNames);
 	}
 
+	@PutMapping("/videos/{postId}")
+	public ResponseEntity<List<String>> uploadPostVideos(@PathVariable Long postId,
+			@RequestParam("files") List<MultipartFile> files) {
+		try {
+			List<String> videoNames = postService.uploadPostVideos(postId, files);
+			return ResponseEntity.ok().body(videoNames);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
+
+	@GetMapping("/videos/{postId}/{videoId}")
+	public ResponseEntity<Resource> getPostVideo(@PathVariable Long postId, @PathVariable String videoId) {
+		try {
+			Resource video = postService.getPostVideo(postId, videoId);
+			return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + video.getFilename() + "\"")
+					.body(video);
+		} catch (IOException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}
+	}
+
+	@GetMapping("/videos/{postId}")
+	public ResponseEntity<List<String>> getAllPostVideos(@PathVariable Long postId) {
+		List<String> videoNames = postService.getAllPostVideos(postId);
+		return ResponseEntity.ok().body(videoNames);
+	}
 }

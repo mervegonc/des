@@ -7,4 +7,5 @@ public class ArticleUpdateRequest {
 
 	String subject;
 	String content;
+	String connections;
 }

@@ -3,6 +3,7 @@ package com.tobias.des.controller;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.core.io.PathResource;
@@ -24,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.tobias.des.dto.responses.UserResponse;
 import com.tobias.des.entity.User;
+import com.tobias.des.entity.UserFollower;
 import com.tobias.des.service.UserDetailsServiceImpl;
 import com.tobias.des.service.UserManager;
 
@@ -141,4 +143,38 @@ public class UserController {
 		}
 	}
 
+	@GetMapping("/{userId}/followers")
+	public ResponseEntity<Map<String, Object>> getFollowers(@PathVariable Long userId) {
+		List<UserFollower> followers = userManager.getFollowers(userId);
+		List<Long> followerIds = followers.stream().map(follower -> follower.getFollower().getId())
+				.collect(Collectors.toList());
+		return ResponseEntity.ok(Map.of("followers", followerIds, "total", followerIds.size()));
+	}
+
+	// Yeni endpoint
+	@GetMapping("/{userId}/isFollowing/{followerId}")
+	public ResponseEntity<Boolean> isFollowing(@PathVariable Long userId, @PathVariable Long followerId) {
+		boolean isFollowing = userManager.isFollowing(userId, followerId);
+		return ResponseEntity.ok(isFollowing);
+	}
+
+	@GetMapping("/{userId}/following")
+	public ResponseEntity<Map<String, Object>> getFollowing(@PathVariable Long userId) {
+		List<UserFollower> following = userManager.getFollowing(userId);
+		List<Long> followingIds = following.stream().map(followingUser -> followingUser.getUser().getId())
+				.collect(Collectors.toList());
+		return ResponseEntity.ok(Map.of("following", followingIds, "total", followingIds.size()));
+	}
+
+	@PostMapping("/{userId}/follow/{followerId}")
+	public ResponseEntity<String> followUser(@PathVariable Long userId, @PathVariable Long followerId) {
+		userManager.followUser(userId, followerId);
+		return ResponseEntity.ok("User followed successfully");
+	}
+
+	@DeleteMapping("/{userId}/unfollow/{followerId}")
+	public ResponseEntity<String> unfollowUser(@PathVariable Long userId, @PathVariable Long followerId) {
+		userManager.unfollowUser(userId, followerId);
+		return ResponseEntity.ok("User unfollowed successfully");
+	}
 }

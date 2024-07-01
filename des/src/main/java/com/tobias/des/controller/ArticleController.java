@@ -71,14 +71,11 @@ public class ArticleController {
 	}
 
 	@GetMapping("/{articleId}")
-	public ResponseEntity<Article> getOneArticleById(@PathVariable Long articleId) {
-		Article article = articleService.getOneArticleById(articleId);
-		if (article != null) {
-			// Post nesnesinin oluşturulma zamanını formatlayarak güncelleyin
-			article.setCreatedAtFormatted(article.getFormattedCreatedAt());
-			return ResponseEntity.ok().body(article);
+	public ResponseEntity<ArticleResponse> getOneArticleByArticleId(@PathVariable Long articleId) {
+		ArticleResponse response = articleService.getOneArticleByArticleId(articleId);
+		if (response != null) {
+			return ResponseEntity.ok().body(response);
 		} else {
-			// Post bulunamazsa uygun bir hata mesajı döndür
 			return ResponseEntity.notFound().build();
 		}
 	}

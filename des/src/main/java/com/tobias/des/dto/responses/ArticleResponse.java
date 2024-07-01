@@ -19,6 +19,7 @@ public class ArticleResponse {
 	Date createdAt;
 	String formattedCreatedAt;
 	List<ArticleLikeResponse> articleLikes;
+	String connections;
 
 	public ArticleResponse(Article entity, List<ArticleLikeResponse> likes) {
 		this.id = entity.getId();
@@ -29,7 +30,7 @@ public class ArticleResponse {
 		this.createdAt = entity.getCreatedAt();
 		this.formattedCreatedAt = formatDate(this.createdAt);
 		this.articleLikes = likes;
-
+		this.connections = entity.getConnections();
 	}
 
 	private String formatDate(Date date) {

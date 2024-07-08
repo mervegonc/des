@@ -77,7 +77,7 @@ public class UserController {
 					.body(photo);
 		} catch (IOException e) {
 			Resource defaultPhoto = new PathResource(
-					Paths.get("C:/campspring/des/src/main/resources/uploads/background/background.png"));
+					Paths.get("/home/ubuntu/des/des/src/main/resources/uploads/background/background.png"));
 			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"blank.png\"").body(defaultPhoto);
 		}
@@ -92,12 +92,13 @@ public class UserController {
 					.body(photo);
 		} catch (IOException e) {
 			Resource defaultPhoto = new PathResource(
-					Paths.get("C:/campspring/des/src/main/resources/uploads/profile/blank.png"));
+					Paths.get("/home/ubuntu/des/des/src/main/resources/uploads/profile/blank.png"));
 			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"blank.png\"").body(defaultPhoto);
 		}
 	}
 
+//There was a file directory error regarding a photo here, it has been resolved
 	@PostMapping
 	public User createUser(@RequestBody User newUser) {
 		return userManager.saveOneUser(newUser);

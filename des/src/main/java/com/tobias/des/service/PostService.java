@@ -234,7 +234,7 @@ public class PostService {
 		return postId + "." + extension;
 	}
 
-	private static final String UPLOAD_DIR = "C:/campspring/des/src/main/resources/uploads/posts/";
+	private static final String UPLOAD_DIR = "/home/ubuntu/des/des/src/main/resources/uploads/posts/";
 
 	public Resource getPostPhoto(Long postId, String photoId) throws IOException {
 		String photoPath = Constants.POST_PHOTOS_DIR + postId + "/" + photoId;

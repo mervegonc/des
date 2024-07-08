@@ -189,7 +189,7 @@ public class ArticleService {
 		return articleId + "." + extension;
 	}
 
-	private static final String UPLOAD_DIR = "C:/campspring/des/src/main/resources/uploads/articles/";
+	private static final String UPLOAD_DIR = "/home/ubuntu/des/des/src/main/resources/uploads/articles/";
 
 	public Resource getArticlePhoto(Long articleId, String photoId) throws IOException {
 		String photoPath = Constants.ARTICLE_PHOTOS_DIR + articleId + "/" + photoId;

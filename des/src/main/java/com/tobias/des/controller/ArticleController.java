@@ -50,6 +50,12 @@ public class ArticleController {
 		this.articlePhotosRepository = articlePhotosRepository;
 	}
 
+	@GetMapping("/allArticlesIds")
+	public ResponseEntity<List<Long>> getAllArticleIds() {
+		List<Long> articleIds = articleService.getAllArticleIds();
+		return ResponseEntity.ok(articleIds);
+	}
+
 	@GetMapping("/search")
 	public List<Article> searchArticles(@RequestParam("keyword") String keyword) {
 		return articleService.searchByContent(keyword);
@@ -93,7 +99,7 @@ public class ArticleController {
 		// Makaleyi sil
 		articleService.deleteOneArticleById(articleId);
 
-		String articleFolder = "C:/campspring/des/src/main/resources/uploads/articles/" + articleId;
+		String articleFolder = "/des/des/src/main/resources/uploads/articles/" + articleId;
 		File folder = new File(articleFolder);
 		if (folder.exists()) {
 			deleteFolder(folder);

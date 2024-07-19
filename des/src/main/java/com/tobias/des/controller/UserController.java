@@ -77,7 +77,7 @@ public class UserController {
 					.body(photo);
 		} catch (IOException e) {
 			Resource defaultPhoto = new PathResource(
-					Paths.get("/home/ubuntu/des/des/src/main/resources/uploads/background/background.png"));
+					Paths.get("/des/des/src/main/resources/uploads/background/background.png"));
 			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"blank.png\"").body(defaultPhoto);
 		}
@@ -91,8 +91,7 @@ public class UserController {
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + photo.getFilename() + "\"")
 					.body(photo);
 		} catch (IOException e) {
-			Resource defaultPhoto = new PathResource(
-					Paths.get("/home/ubuntu/des/des/src/main/resources/uploads/profile/blank.png"));
+			Resource defaultPhoto = new PathResource(Paths.get("src/main/resources/uploads/profile/blank.png"));
 			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"blank.png\"").body(defaultPhoto);
 		}

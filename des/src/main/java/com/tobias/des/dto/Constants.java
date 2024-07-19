@@ -1,7 +1,7 @@
 package com.tobias.des.dto;
 
 public class Constants {
-	public static final String UPLOAD_DIR = "/home/ubuntu/des/des/src/main/resources/uploads/";
+	public static final String UPLOAD_DIR = "src/main/resources/uploads/";
 
 	public static final String USER_PROFILE = UPLOAD_DIR + "profile/";
 	public static final String POST_PHOTOS_DIR = UPLOAD_DIR + "posts/";

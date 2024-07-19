@@ -40,7 +40,7 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class UserManager implements UserService {
-	private static final String PROFILE_UPLOAD_DIR = "C:/campspring/des/src/main/java/com/tobias/des/uploads/";
+	private static final String PROFILE_UPLOAD_DIR = "src/main/resources/uploads/";
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
 	private final PasswordEncoder passwordEncoder;
@@ -221,7 +221,7 @@ public class UserManager implements UserService {
 		return user.getId();
 	}
 
-	private static final String UPLOADS_DIR = "C:/campspring/des/src/main/java/com/tobias/des/uploads/profile";
+	private static final String UPLOADS_DIR = "src/main/resources/uploads/profile";
 
 	public Resource getUserProfilePhoto(Long userId) throws IOException {
 		Path filePath = Paths.get(Constants.USER_PROFILE + userId + ".jpg");
@@ -233,7 +233,7 @@ public class UserManager implements UserService {
 		}
 	}
 
-	private static final String PROFILE_BACKGROUND_DIR = "C:/campspring/des/src/main/java/com/tobias/des/uploads/background";
+	private static final String PROFILE_BACKGROUND_DIR = "src/main/resources/uploads/background";
 
 	public Resource getUserBackgroundPhoto(Long userId) throws IOException {
 		Path filePath = Paths.get(Constants.BACKGROUND_DIR + userId + ".jpg");

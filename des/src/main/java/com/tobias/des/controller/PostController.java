@@ -53,6 +53,12 @@ public class PostController {
 
 	}
 
+	@GetMapping("/allPostIds")
+	public ResponseEntity<List<Long>> getAllPostIds() {
+		List<Long> postIds = postService.getAllPostIds();
+		return ResponseEntity.ok(postIds);
+	}
+
 	@GetMapping("/search")
 	public List<Post> searchPosts(@RequestParam("keyword") String keyword) {
 		return postService.searchByContent(keyword);

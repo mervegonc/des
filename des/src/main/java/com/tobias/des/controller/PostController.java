@@ -53,6 +53,12 @@ public class PostController {
 
 	}
 
+	@GetMapping("/posts")
+	public ResponseEntity<List<PostResponse>> getPosts(@RequestParam int limit, @RequestParam int offset) {
+		List<PostResponse> posts = postService.getPosts(limit, offset);
+		return ResponseEntity.ok(posts);
+	}
+
 	@GetMapping("/allPostIds")
 	public ResponseEntity<List<Long>> getAllPostIds() {
 		List<Long> postIds = postService.getAllPostIds();

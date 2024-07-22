@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -53,6 +56,25 @@ public class PostService {
 		this.userRepository = userRepository;
 		this.postPhotosRepository = postPhotosRepository;
 		this.postVideosRepository = postVideosRepository;
+	}
+
+	public List<PostResponse> getPosts(int limit, int offset) {
+		Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+		Page<Post> page = postRepository.findAll(pageable);
+		return page.stream().map(this::convertToPostResponse).collect(Collectors.toList());
+	}
+
+	private PostResponse convertToPostResponse(Post post) {
+		PostResponse postResponse = new PostResponse();
+		postResponse.setId(post.getId());
+		postResponse.setTitle(post.getTitle());
+		postResponse.setText(post.getText());
+		postResponse.setUserId(post.getUser().getId());
+		postResponse.setUserName(post.getUser().getUsername());
+		postResponse.setConnections(post.getConnections());
+		postResponse.setCreatedAt(post.getCreatedAt());
+		postResponse.setFormattedCreatedAt(post.getFormattedCreatedAt());
+		return postResponse;
 	}
 
 	public List<Long> getAllPostIds() {

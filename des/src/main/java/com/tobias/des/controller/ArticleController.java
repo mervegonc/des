@@ -50,6 +50,12 @@ public class ArticleController {
 		this.articlePhotosRepository = articlePhotosRepository;
 	}
 
+	@GetMapping("/articles")
+	public ResponseEntity<List<ArticleResponse>> getArticles(@RequestParam int limit, @RequestParam int offset) {
+		List<ArticleResponse> articles = articleService.getArticles(limit, offset);
+		return ResponseEntity.ok(articles);
+	}
+
 	@GetMapping("/allArticlesIds")
 	public ResponseEntity<List<Long>> getAllArticleIds() {
 		List<Long> articleIds = articleService.getAllArticleIds();

@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -45,6 +48,25 @@ public class ArticleService {
 		this.articlePhotosRepository = articlePhotosRepository;
 		this.articleLikeService = articleLikeService;
 
+	}
+
+	public List<ArticleResponse> getArticles(int limit, int offset) {
+		Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+		Page<Article> page = articleRepository.findAll(pageable);
+		return page.stream().map(this::convertToArticleResponse).collect(Collectors.toList());
+	}
+
+	private ArticleResponse convertToArticleResponse(Article article) {
+		ArticleResponse articleResponse = new ArticleResponse(article, null);
+		articleResponse.setId(article.getId());
+		articleResponse.setSubject(article.getSubject());
+		articleResponse.setContent(article.getContent());
+		articleResponse.setUserId(article.getUser().getId());
+		articleResponse.setUserName(article.getUser().getUsername());
+		articleResponse.setConnections(article.getConnections());
+		articleResponse.setCreatedAt(article.getCreatedAt());
+		articleResponse.setFormattedCreatedAt(article.getFormattedCreatedAt());
+		return articleResponse;
 	}
 
 	public List<Long> getAllArticleIds() {

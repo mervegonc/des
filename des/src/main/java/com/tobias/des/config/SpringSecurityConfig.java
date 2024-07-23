@@ -46,7 +46,6 @@ public class SpringSecurityConfig {
 			authorize.requestMatchers(HttpMethod.GET, "/api/user/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/post/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/comment/posts/**");
-			authorize.requestMatchers(HttpMethod.GET, "api/posts/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/like/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/article/**");
 			authorize.requestMatchers(HttpMethod.GET, "/api/articlelike/**");
